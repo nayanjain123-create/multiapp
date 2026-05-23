@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'multi',
 ]
 
-ASGI_APPLICATION = 'multiapp.asgi.application'
+ASGI_APPLICATION = "multiapp.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {
