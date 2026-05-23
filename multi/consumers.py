@@ -91,7 +91,7 @@ class ProductChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
-        self.chat_id = self.scope["url_route"]["kwargs"]["chat_id"]
+        self.chat_id = self.scope["url_route"]["kwargs"]["room_id"]
 
         self.room_group_name = f"product_chat_{self.chat_id}"
 
