@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Product Chat</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f5f5f5;
+        }
+
+        .chat-container{
+            max-width:900px;
+            margin:40px auto;
+        }
+
+        .chat-box{
+            height:500px;
+            overflow-y:auto;
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            border:1px solid #ddd;
+        }
+
+        .message{
+            margin-bottom:15px;
+            display:flex;
+        }
+
+        .my-message{
+            justify-content:end;
+        }
+
+        .other-message{
+            justify-content:start;
+        }
+
+        .bubble{
+            padding:10px 15px;
+            border-radius:15px;
+            max-width:70%;
+            word-wrap:break-word;
+        }
+
+        .my-bubble{
+            background:#0d6efd;
+            color:white;
+        }
+
+        .other-bubble{
+            background:#e9ecef;
+        }
+
+        .product-card{
+            background:white;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:20px;
+            border:1px solid #ddd;
+        }
+
+        .product-img{
+            width:100px;
+            height:100px;
+            object-fit:cover;
+            border-radius:10px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container chat-container">
+
+    <!-- Product Info -->
+
+    <div class="product-card d-flex align-items-center">
+
+        <img
+            src="{{ room.product.image.url }}"
+            class="product-img me-3"
+        >
+
+        <div>
+
+            <h4>
+                {{ room.product.title }}
+            </h4>
+
+            <h5 class="text-success">
+                ₹ {{ room.product.price }}
+            </h5>
+
+            <p class="mb-0">
+                Seller:
+                {{ room.seller.username }}
+            </p>
+
+            {% if room.product.is_sold %}
+
+                <span class="badge bg-danger">
+                    SOLD
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-success">
+                    Available
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- Chat Card -->
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+
+            {% if request.user == room.seller %}
+
+                Chat with {{ room.buyer.username }}
+
+            {% else %}
+
+                Chat with {{ room.seller.username }}
+
+            {% endif %}
+
+        </div>
+
+        <div
+            class="card-body chat-box"
+            id="chat-box"
+        >
+
+            {% for msg in messages %}
+
+                {% if msg.sender == request.user %}
+
+                    <div class="message my-message">
+
+                        <div class="bubble my-bubble">
+
+                            {{ msg.text }}
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="message other-message">
+
+                        <div class="bubble other-bubble">
+
+                            <strong>
+                                {{ msg.sender.username }}
+                            </strong>
+
+                            <br>
+
+                            {{ msg.text }}
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+        {% if not room.product.is_sold %}
+
+        <div class="card-footer">
+
+            <div class="input-group">
+
+                <input
+                    type="text"
+                    id="message-input"
+                    class="form-control"
+                    placeholder="Type your message..."
+                >
+
+                <button
+                    class="btn btn-primary"
+                    onclick="sendMessage()"
+                >
+                    Send
+                </button>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="card-footer text-center text-danger">
+
+            Product is sold.
+            Chat closed.
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script>
+
+    const roomId = "{{ room.id }}";
+
+    const socket = new WebSocket(
+        "ws://" + window.location.host + "/ws/product_chat/" + roomId + "/"
+    );
+
+    socket.onmessage = function(e){
+
+        const data = JSON.parse(e.data);
+
+        const chatBox = document.getElementById("chat-box");
+
+        chatBox.innerHTML += `
+            <div style="margin-bottom:10px;">
+                <b>${data.username}</b>: ${data.message}
+            </div>
+        `;
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    function sendMessage(){
+
+        const input = document.getElementById("message-input");
+
+        const message = input.value;
+
+        socket.send(JSON.stringify({
+
+            "message": message,
+
+            "username": "{{ request.user.username }}"
+
+        }));
+
+        input.value = "";
+    }
+
+</script>
+</body>
+
+</html>
