@@ -162,9 +162,9 @@
     ? "wss"
     : "ws";
 
-const socket = new WebSocket(
-    `${protocol}://${window.location.host}/ws/chat/${roomId}/`
-);
+    const socket = new WebSocket(
+        `${protocol}://${window.location.host}/ws/chat/${roomId}/`
+    );
 
     socket.onmessage = function(e){
 

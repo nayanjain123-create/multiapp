@@ -114,10 +114,10 @@ class ProductChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
 
         message = data["message"]
-        username = data["username"]
+        
 
         sender = self.scope["user"]
-
+        username = sender.username
         # GET PRODUCT ROOM
         room = await sync_to_async(ProductRoom.objects.get)(
             id=self.chat_id
