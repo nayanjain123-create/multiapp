@@ -44,11 +44,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
 
         message = data["message"]
-        username = data["username"]
+        
         receiver_id = data["receiver_id"]
 
         sender = self.scope["user"]
-
+        username = sender.username
         receiver = await sync_to_async(User.objects.get)(
             id=receiver_id
         )

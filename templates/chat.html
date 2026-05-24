@@ -157,9 +157,14 @@
 
     const roomId = "{{ room_id }}";
 
-    const socket = new WebSocket(
-        "wss://" + window.location.host + "/ws/chat/" + roomId + "/"
-    );
+    const protocol =
+    window.location.protocol === "https:"
+    ? "wss"
+    : "ws";
+
+const socket = new WebSocket(
+    `${protocol}://${window.location.host}/ws/chat/${roomId}/`
+);
 
     socket.onmessage = function(e){
 
